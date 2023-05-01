@@ -50,25 +50,25 @@ class _RegisterState extends State<Register> {
         child: BlocConsumer<RegisterCubit, RegisterStates>(
           listener: (BuildContext context, Object? state) {
             if (state is RegisterCreateUserSuccessStates) {
-           
               if (typeMember == 'Patient') {
-                   cachHelper.saveData(key: 'uId', value: state.uId);
+                cachHelper.saveData(key: 'uId', value: state.uId);
+                   cachHelper.saveData(key: 'Newtype', value: 'Patient');
                 Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (context) => Home()),
                     (route) => false);
-                    
-              SocialCubit.get(context).getUserData();
+
+                SocialCubit.get(context).getUserData();
               } else {
-                     cachHelper.saveData(key: 'uId', value: state.uId);
+                 cachHelper.saveData(key: 'Newtype', value: 'Athlete');
+                cachHelper.saveData(key: 'uId', value: state.uId);
                 Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (context) => HomeAthlete()),
                     (route) => false);
-                    
-              SocialCubit.get(context).getUserData();
-              }
 
+                SocialCubit.get(context).getUserData();
+              }
             }
           },
           builder: (BuildContext context, state) {
@@ -327,7 +327,8 @@ class _RegisterState extends State<Register> {
                                     ),
                                     child: MaterialButton(
                                       onPressed: () {
-                                        cachHelper.saveData(key: 'state',value: 'Athlete');
+                                        cachHelper.saveData(
+                                            key: 'state', value: 'Athlete');
                                         setState(() {
                                           typeMember = 'Athlete';
                                         });
@@ -357,7 +358,8 @@ class _RegisterState extends State<Register> {
                                     ),
                                     child: MaterialButton(
                                       onPressed: () {
-                                         cachHelper.saveData(key: 'state',value: 'Patient');
+                                        cachHelper.saveData(
+                                            key: 'state', value: 'Patient');
                                         setState(() {
                                           typeMember = 'Patient';
                                         });

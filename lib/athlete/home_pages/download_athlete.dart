@@ -76,7 +76,7 @@ class _DownloadAthleteState extends State<DownloadAthlete> {
                           child: Text(
                             "please connect the EMG device before you click on the start button!"
                                 .tr(context),
-                            style: Theme.of(context).textTheme.bodyText1,
+                            style: Theme.of(context).textTheme.bodyText1!.copyWith(color: Colors.white),
                           ),
                         ),
                       ],

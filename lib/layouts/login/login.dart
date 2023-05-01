@@ -1,4 +1,5 @@
 import 'package:ai_control/app_localizations.dart';
+import 'package:ai_control/athlete/main_home_athlete/home_athlete.dart';
 import 'package:ai_control/shared/local/cach_helper/cach_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
@@ -16,9 +17,6 @@ import '../../shared/components/components.dart';
 import '../main_home/home.dart';
 import '../register/register.dart';
 
-
-
-
 class Login extends StatelessWidget {
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
@@ -26,63 +24,66 @@ class Login extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
-
       body: BlocProvider(
         create: (BuildContext context) => LoginCubit(),
         child: BlocConsumer<LoginCubit, LoginStates>(
           listener: (BuildContext context, Object? state) {
-
-
-
-
-
-
-            if (state is LoginErrorStates){
-
+            if (state is LoginErrorStates) {
               showToast(
                   msg: 'Email or Password not true, please try again.',
-                  state: ToastStates.ERORR
-              );
+                  state: ToastStates.ERORR);
 
               // cachHelper.saveData(key: 'token', value: false);
-
-            }
-            else if (state is LoginSuccessStates ) {
-
-              cachHelper.saveData(key: 'uId', value: state.uId).then(
-                      (value) {
-                    SocialCubit.get(context).getUserData();
-                    UserModel? userModel ;
-
-                    final uId = FirebaseAuth.instance.currentUser?.uid;
-                    FirebaseFirestore.instance.collection('users').doc(uId).get().then((value) {
-                      userModel=UserModel.fromJson(value.data()!);
-                        Navigator.pushAndRemoveUntil(context,
-                            MaterialPageRoute(builder: (context) => const Home()), (route) => false);
-                        cachHelper.saveData(key: 'type', value: 'user');
-
-
-
-                    }).catchError((e){
-                      print(e.toString());
-                    });
-
-
-
-
-
-
-                  }).catchError((error){
-
+            } else if (state is LoginSuccessStates) {
+              if (cachHelper.getData(key: "Newtype") == "Patient") {
+                  cachHelper.saveData(key: 'uId', value: state.uId).then((value) {
+                SocialCubit.get(context).getUserData();
+                UserModel? userModel;
+                final uId = FirebaseAuth.instance.currentUser?.uid;
+                FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(uId)
+                    .get()
+                    .then((value) {
+                  userModel = UserModel.fromJson(value.data()!);
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Home()),
+                      (route) => false);
+                  cachHelper.saveData(key: 'type', value: 'user');
+                }).catchError((e) {
+                  print(e.toString());
+                });
+              }).catchError((error) {
                 print(error.toString());
-
               });
+              }else{
+                  cachHelper.saveData(key: 'uId', value: state.uId).then((value) {
+                SocialCubit.get(context).getUserData();
+                UserModel? userModel;
+                final uId = FirebaseAuth.instance.currentUser?.uid;
+                FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(uId)
+                    .get()
+                    .then((value) {
+                  userModel = UserModel.fromJson(value.data()!);
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => const HomeAthlete()),
+                      (route) => false);
+                  cachHelper.saveData(key: 'type', value: 'user');
+                }).catchError((e) {
+                  print(e.toString());
+                });
+              }).catchError((error) {
+                print(error.toString());
+              });
+              }
 
+            
             }
-
           },
           builder: (BuildContext context, state) {
             return Padding(
@@ -92,7 +93,6 @@ class Login extends StatelessWidget {
                   child: Form(
                     key: formKey,
                     child: Column(
-
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         SizedBox(
@@ -105,9 +105,8 @@ class Login extends StatelessWidget {
                             'assets/images/3s.png',
                           ),
                         ),
-
                         SizedBox(
-                          height:40,
+                          height: 40,
                         ),
                         TextFormField(
                           controller: emailController,
@@ -121,9 +120,7 @@ class Login extends StatelessWidget {
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            label: Text(
-                                "Enter Email".tr(context)
-                            ),
+                            label: Text("Enter Email".tr(context)),
                             prefixIcon: Icon(
                               Icons.mail_outline,
                             ),
@@ -145,9 +142,7 @@ class Login extends StatelessWidget {
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              label: Text(
-                                  "passowrd".tr(context)
-                              ),
+                              label: Text("passowrd".tr(context)),
                               prefixIcon: Icon(
                                 Icons.lock_outline,
                               ),
@@ -162,12 +157,11 @@ class Login extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            TextButton(onPressed: (){}, child: Text(
-                                "Forget password?".tr(context)))
+                            TextButton(
+                                onPressed: () {},
+                                child: Text("Forget password?".tr(context)))
                           ],
-
                         ),
-
                         ConditionalBuilder(
                           condition: state != LoginLoadingStates,
                           builder: (BuildContext context) => Container(
@@ -180,41 +174,38 @@ class Login extends StatelessWidget {
                               onPressed: () {
                                 if (formKey.currentState!.validate()) {
                                   LoginCubit.get(context).userLogin(
-                                      email: emailController.text,
-                                      password: passwordController.text,
-                                      context: context,
+                                    email: emailController.text,
+                                    password: passwordController.text,
+                                    context: context,
                                   );
                                 }
                               },
                               color: HexColor('#2888ff'),
                               textColor:
-                              Theme.of(context).scaffoldBackgroundColor,
-                              child:
-                              Text(
-                                  "LOGIN".tr(context)
-                                  , style: TextStyle(fontSize: 28)),
+                                  Theme.of(context).scaffoldBackgroundColor,
+                              child: Text("LOGIN".tr(context),
+                                  style: TextStyle(fontSize: 28)),
                             ),
                           ),
                           fallback: (BuildContext context) =>
                               CircularProgressIndicator(),
                         ),
-
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "don\\'t have an account?".tr(context)
-                              ,
-                              style: TextStyle(
-                                  color: Colors.black54
-                              ),),
+                              "don\\'t have an account?".tr(context),
+                              style: TextStyle(color: Colors.black54),
+                            ),
                             TextButton(
                                 onPressed: () {
-                                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>Register()), (route) => false);
-
-                                }, child: Text(
-                                "REGISTER".tr(context)
-                            ))
+                                  Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => Register()),
+                                      (route) => false);
+                                },
+                                child: Text("REGISTER".tr(context)))
                           ],
                         ),
                         SizedBox(
@@ -225,27 +216,21 @@ class Login extends StatelessWidget {
                           children: [
                             CircleAvatar(
                               radius: 30,
-                              backgroundColor:Colors.white ,
-                              backgroundImage: AssetImage(
-                                  'assets/images/facebook2.png'
-                              ),
-
+                              backgroundColor: Colors.white,
+                              backgroundImage:
+                                  AssetImage('assets/images/facebook2.png'),
                             ),
                             CircleAvatar(
                               radius: 30,
-                              backgroundColor:Colors.white ,
-                              backgroundImage: AssetImage(
-                                  'assets/images/google.png'
-                              ),
-
+                              backgroundColor: Colors.white,
+                              backgroundImage:
+                                  AssetImage('assets/images/google.png'),
                             ),
                             CircleAvatar(
                               radius: 30,
-                              backgroundColor:Colors.white ,
+                              backgroundColor: Colors.white,
                               backgroundImage: AssetImage(
                                 'assets/images/yahoo.png',
-
-
                               ),
                             ),
                           ],
